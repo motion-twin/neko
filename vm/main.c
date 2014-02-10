@@ -209,7 +209,7 @@ int main( int argc, char *argv[] ) {
 	neko_standalone_init();
 #	endif
 	if( !neko_has_embedded_module(vm) ) {
-		int jit = 1;
+		int jit = 0;
 		int stats = 0;
 		while( argc > 1 ) {
 			if( strcmp(argv[1],"-interp") == 0 ) {
