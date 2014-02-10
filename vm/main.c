@@ -94,7 +94,7 @@ int neko_has_embedded_module( neko_vm *vm ) {
 	fseek(self,pos,SEEK_SET);
 	// flags
 	if( (id[7] & 1) == 0 )
-		neko_vm_jit(vm,1);
+		neko_vm_jit(vm,0);
 	return 1;
 }
 
