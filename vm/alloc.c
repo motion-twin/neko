@@ -43,6 +43,11 @@
 
 #define GC_THREADS
 #include "gc/gc.h"
+#ifdef NEKO_GC_DEBUG
+#	include "gc/gc_backptr.h"
+#	define GC_EXTRAS neko_vm_get_stack(NEKO_VM(),__FILE__,__LINE__), __LINE__
+#	define GC_EXTRA_PARAMS const char * s, int i
+#endif
 
 #ifndef GC_MALLOC
 #	error Looks like libgc was not installed, please install it before compiling
@@ -159,6 +164,12 @@ EXTERN void neko_gc_major() {
 EXTERN void neko_gc_stats( int *heap, int *free ) {
 	*heap = (int)GC_get_heap_size();
 	*free = (int)GC_get_free_bytes();
+}
+
+EXTERN void neko_gc_generate_random_backtrace() {
+#	ifdef NEKO_GC_DEBUG
+	GC_generate_random_backtrace();
+#	endif
 }
 
 EXTERN char *alloc( unsigned int nbytes ) {

@@ -12,12 +12,12 @@
 
 INSTALL_PREFIX = /usr
 
-CFLAGS = -Wall -O3 -fPIC -fomit-frame-pointer -I vm -D_GNU_SOURCE -I libs/common
+CFLAGS = -Wall -O3 -fPIC -fomit-frame-pointer -I vm -D_GNU_SOURCE -I libs/common -DNEKO_GC_DEBUG -g
 EXTFLAGS = -pthread
 MAKESO = $(CC) -shared -Wl,-Bsymbolic
 LIBNEKO_NAME = libneko.so
 LIBNEKO_LIBS = -ldl -lgc -lm
-NEKOVM_FLAGS = -Lbin -lneko
+NEKOVM_FLAGS = -Lbin -lneko -DNEKO_GC_DEBUG
 STD_NDLL_FLAGS = ${NEKOVM_FLAGS} -lrt
 INSTALL_FLAGS =
 LIB_PREFIX = /opt/local
