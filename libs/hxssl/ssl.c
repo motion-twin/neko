@@ -33,6 +33,12 @@ typedef int SOCKET;
 //#define val_sock(o)	(SSL_CTX*)val_data(o)
 #define alloc_null() val_null;
 
+static field f_s;
+
+#define UNHX_STRING(s) \
+	( !val_is_string(s) && val_is_object(s) && val_is_string(val_field(s,f_s) ) ) ? \
+		val_field(s,f_s) : s;
+
 DEFINE_KIND( k_ssl_method_pointer );
 DEFINE_KIND( k_ssl_ctx_pointer );
 DEFINE_KIND( k_ssl_ctx );
@@ -174,7 +180,7 @@ static HostnameValidationResult hxssl_match_hostname( const ASN1_STRING *asn1, c
 
 	pattern = (char *)ASN1_STRING_data((ASN1_STRING *)asn1);
 	
-	if( ASN1_STRING_length(asn1) != strlen(pattern) ){
+	if( ASN1_STRING_length((ASN1_STRING *)asn1) != strlen(pattern) ){
 		return MalformedCertificate;
 	}else{
 		wildcard = strchr(pattern, '*');
@@ -390,7 +396,13 @@ static value hxssl_SSL_recv( value ssl, value data, value pos, value len ) {
 	//dlen = val_strlen(data);
 	//printf("hxssl_SSL_recv %i %i\n", p, l );
 	void * buf = (void *) (val_string(data) + p);
+
+	POSIX_LABEL(recv_again);
 	int dlen = SSL_read( val_ssl(ssl), buf, l );
+	if( dlen == SOCKET_ERROR ) {
+		HANDLE_EINTR(recv_again);
+		return block_error();
+	}
 	if( dlen < 0 )
 		neko_error();
 	return alloc_int( dlen );
@@ -479,6 +491,9 @@ static  value hxssl___SSL_read( value ssl ) {
 }
 
 static value hxssl___SSL_write( value ssl, value data ) {
+	data = UNHX_STRING(data);
+	val_check(data,string);
+
 	int len, slen;
 	const char *s = val_string( data );
 	len = val_strlen( data );
@@ -518,6 +533,7 @@ static value hxssl_SSL_accept( value ssl, value sock ) {
 // compat
 
 static value neko_init( value a, value b, value c, value d, value e ){
+	f_s = val_id("__s");
 	return alloc_null();
 }
 
