@@ -5,15 +5,22 @@
 #include <neko.h>
 #include <stdio.h>
 #include <string.h>
-#include <strings.h>
 
 #if !_MSC_VER
 #include <sys/socket.h>
+#include <strings.h>
 #endif
 
 #include <openssl/bio.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+
+#ifdef _MSC_VER
+#undef X509_NAME
+#undef X509_CERT_PAIR
+#undef X509_EXTENSIONS
+#endif
+
 #include <openssl/x509v3.h>
 
 #ifdef _MSC_VER 

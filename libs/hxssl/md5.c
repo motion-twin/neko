@@ -1,6 +1,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 #if _MSC_VER
+#include <stdio.h>
 #define snprintf _snprintf
 #endif
 
@@ -18,7 +19,8 @@ static value hxssl_md5( value v, value raw ) {
 	MD5_CTX c;
 
 	unsigned char digest[MD5_DIGEST_LENGTH];
-	char *out = (char*) malloc(33);
+	char out[34];
+	out[33] = 0;
 
 	MD5_Init(&c);
 	while( len > 0 ) {
