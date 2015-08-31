@@ -573,13 +573,11 @@ EXTERN void neko_vm_dump_stack( neko_vm *vm ) {
 }
 
 #ifdef NEKO_GC_DEBUG
-EXTERN char* neko_vm_get_stack( neko_vm *vm, const char *from_file, int from_line ) {
-	// we can't do any GC allocation here since we might hold the lock
-
+EXTERN char* neko_vm_get_stack( neko_vm *vm, const char *from_file ) {
 	if( !vm )
-		return NULL;
+		return (char *)from_file;
 
-	int len = 512;
+	int len = 2048;
   	char *ret = malloc( len );
 	char *cur = ret;
 	int_val *cspup = vm->csp;
@@ -625,9 +623,10 @@ EXTERN char* neko_vm_get_stack( neko_vm *vm, const char *from_file, int from_lin
 		cur += l;
 		len -= l;
 		i++;
-		if( i > 8 )
+		if( i > 28 )
 			break;
 	}
+	snprintf(cur,len,"in %s", from_file);
 	return ret;
 }
 #endif

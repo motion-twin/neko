@@ -45,7 +45,7 @@
 #include "gc/gc.h"
 #ifdef NEKO_GC_DEBUG
 #	include "gc/gc_backptr.h"
-#	define GC_EXTRAS neko_vm_get_stack(NEKO_VM(),__FILE__,__LINE__), __LINE__
+#	define GC_EXTRAS neko_vm_get_stack(NEKO_VM(),__FILE__), __LINE__
 #	define GC_EXTRA_PARAMS const char * s, int i
 #endif
 

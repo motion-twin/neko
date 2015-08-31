@@ -56,7 +56,7 @@ EXTERN value neko_default_loader( char **argv, int argc );
 EXTERN void neko_vm_redirect( neko_vm *vm, neko_printer print, void *param );
 EXTERN void neko_vm_set_stats( neko_vm *vm, neko_stat_func fstats, neko_stat_func pstats );
 EXTERN void neko_vm_dump_stack( neko_vm *vm );
-EXTERN char* neko_vm_get_stack( neko_vm *vm, const char *from_file, int from_line );
+EXTERN char* neko_vm_get_stack( neko_vm *vm, const char *from_file );
 
 EXTERN int neko_is_big_endian();
 
