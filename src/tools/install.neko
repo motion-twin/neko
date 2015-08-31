@@ -141,7 +141,7 @@ cflags = "-O3 -fPIC";
 if( system == "Linux" ) cflags += " -pthread";
 cc = getenv("CC");
 if( cc == null ) cc = "gcc";
-linkcmd = switch system { "BSD" => "ld" default => cc };
+linkcmd = cc;
 linkneko = "-lneko";
 linkoptions = switch system {
 	"Mac" => "-bundle -undefined dynamic_lookup -L../../bin"
@@ -435,7 +435,7 @@ while( i < $asize(liblist) ) {
 
 chdir("../src");
 if( (libs.zlib != null && libs.zlib.built) || exists("../bin/zlib.ndll") ) {
-	var cmd = nekovm+" nekoml -nostd neko/Main.nml nekoml/Main.nml";
+	var cmd = nekovm+" ../boot/nekoml.n -nostd neko/Main.nml nekoml/Main.nml";
 	var core_files = readdir("core");
 	while( core_files != null ) {
 		var f = core_files[0];

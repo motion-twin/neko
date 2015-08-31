@@ -7,22 +7,26 @@
 # For MingW/MSys
 #   make os=mingw
 #
+# For FreeBSD
+#   gmake os=freebsd
+#
 
 ## CONFIG
 
 INSTALL_PREFIX = /usr
 
-CFLAGS = -Wall -O3 -fPIC -fomit-frame-pointer -I vm -D_GNU_SOURCE -I libs/common -DNEKO_GC_DEBUG -g
+CFLAGS = -Wall -O3 -fPIC -fomit-frame-pointer -I vm -D_GNU_SOURCE -I libs/common -DABI_ELF
 EXTFLAGS = -pthread
 MAKESO = $(CC) -shared -Wl,-Bsymbolic
 LIBNEKO_NAME = libneko.so
 LIBNEKO_LIBS = -ldl -lgc -lm
-NEKOVM_FLAGS = -Lbin -lneko -DNEKO_GC_DEBUG
+NEKOVM_FLAGS = -Lbin -lneko
 STD_NDLL_FLAGS = ${NEKOVM_FLAGS} -lrt
 INSTALL_FLAGS =
 LIB_PREFIX = /opt/local
+INSTALL_ENV =
 
-NEKO_EXEC = LD_LIBRARY_PATH=../bin:${LD_LIBRARY_PATH} NEKOPATH=../boot:../bin ../bin/neko
+NEKO_EXEC = ${INSTALL_ENV} LD_LIBRARY_PATH=../bin:${LD_LIBRARY_PATH} NEKOPATH=../boot:../bin ../bin/neko
 
 # For profiling VM
 #
@@ -56,14 +60,26 @@ NEKOVM_FLAGS = -L${CURDIR}/bin -lneko
 STD_NDLL_FLAGS = -bundle -undefined dynamic_lookup ${NEKOVM_FLAGS}
 CFLAGS += -L/usr/local/lib -L${LIB_PREFIX}/lib -I${LIB_PREFIX}/include
 INSTALL_FLAGS = -static
+CFLAGS := $(filter-out -DABI_ELF,$(CFLAGS))
+
+endif
+
+### FreeBSD SPECIFIC
+
+ifeq (${os}, freebsd)
+INSTALL_PREFIX = /usr/local
+LIB_PREFIX = /usr/local
+LIBNEKO_LIBS = -L${LIB_PREFIX}/lib -lgc-threaded -lm
+CFLAGS += -I${LIB_PREFIX}/include
+INSTALL_ENV = CC=cc
 
 endif
 
 ### MAKE
 
 VM_OBJECTS = vm/stats.o vm/main.o
-STD_OBJECTS = libs/std/buffer.o libs/std/date.o libs/std/file.o libs/std/init.o libs/std/int32.o libs/std/math.o libs/std/string.o libs/std/random.o libs/std/serialize.o libs/std/socket.o libs/std/sys.o libs/std/xml.o libs/std/module.o libs/common/sha1.o libs/std/md5.o libs/std/unicode.o libs/std/utf8.o libs/std/memory.o libs/std/misc.o libs/std/thread.o libs/std/process.o
-LIBNEKO_OBJECTS = vm/alloc.o vm/builtins.o vm/callback.o vm/interp.o vm/load.o vm/objtable.o vm/others.o vm/hash.o vm/module.o vm/jit_x86.o vm/threads.o
+STD_OBJECTS = libs/std/buffer.o libs/std/date.o libs/std/file.o libs/std/init.o libs/std/int32.o libs/std/math.o libs/std/string.o libs/std/random.o libs/std/serialize.o libs/std/socket.o libs/std/sys.o libs/std/xml.o libs/std/module.o libs/common/sha1.o libs/std/md5.o libs/std/unicode.o libs/std/utf8.o libs/std/memory.o libs/std/misc.o libs/std/thread.o libs/std/process.o libs/std/elf_update.o
+LIBNEKO_OBJECTS = vm/alloc.o vm/builtins.o vm/callback.o vm/elf.o vm/interp.o vm/load.o vm/objtable.o vm/others.o vm/hash.o vm/module.o vm/jit_x86.o vm/threads.o
 
 all: createbin libneko neko std compiler libs
 
@@ -75,11 +91,12 @@ libneko: bin/${LIBNEKO_NAME}
 libs:
 	(cd src; ${NEKO_EXEC} nekoc tools/install.neko)
 	(cd src; ${NEKO_EXEC} tools/install -silent ${INSTALL_FLAGS})
+	if [ "$$os" != "osx" ]; then strip bin/nekoc bin/nekoml bin/nekotools; fi
 
 tools:
 	(cd src; ${NEKO_EXEC} nekoc tools/install.neko)
 	(cd src; ${NEKO_EXEC} tools/install -nolibs)
-	
+
 doc:
 	(cd src; ${NEKO_EXEC} nekoc tools/makedoc.neko)
 	(cd src; ${NEKO_EXEC} tools/makedoc)
