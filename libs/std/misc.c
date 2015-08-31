@@ -137,6 +137,11 @@ static value gc_stats() {
 	return o;
 }
 
+static value gc_generate_random_backtrace() {
+	neko_gc_generate_random_backtrace();
+	return val_null;
+}
+
 /**
 	enable_jit : ?bool -> ?bool
 	<doc>Enable or disable the JIT. Calling enable_jit(null) tells if JIT is enabled or not</doc>
@@ -364,6 +369,7 @@ DEFINE_PRIM(float_of_bytes,2);
 DEFINE_PRIM(double_of_bytes,2);
 DEFINE_PRIM(run_gc,1);
 DEFINE_PRIM(gc_stats,0);
+DEFINE_PRIM(gc_generate_random_backtrace,0);
 DEFINE_PRIM(enable_jit,1);
 DEFINE_PRIM(test,0);
 DEFINE_PRIM(print_redirect,1);

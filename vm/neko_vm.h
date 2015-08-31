@@ -37,6 +37,7 @@ EXTERN void neko_global_free();
 EXTERN void neko_gc_major();
 EXTERN void neko_gc_loop();
 EXTERN void neko_gc_stats( int *heap, int *free );
+EXTERN void neko_gc_generate_random_backtrace();
 EXTERN int neko_thread_create( thread_main_func init, thread_main_func main, void *param, void **handle );
 EXTERN void neko_thread_blocking( thread_main_func f, void *p );
 EXTERN bool neko_thread_register( bool t );
@@ -55,6 +56,7 @@ EXTERN value neko_default_loader( char **argv, int argc );
 EXTERN void neko_vm_redirect( neko_vm *vm, neko_printer print, void *param );
 EXTERN void neko_vm_set_stats( neko_vm *vm, neko_stat_func fstats, neko_stat_func pstats );
 EXTERN void neko_vm_dump_stack( neko_vm *vm );
+EXTERN char* neko_vm_get_stack( neko_vm *vm, const char *from_file );
 
 EXTERN int neko_is_big_endian();
 

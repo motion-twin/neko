@@ -108,6 +108,13 @@ libs = {
 		realdir => "mod_tora",
 		apache2 => true,
 	},
+	hxssl => {
+		src => $array("base64", "ripemd", "sha1", "sha256", "ssl"),
+		inc => $array("openssl/ssl.h"),
+		cflags => "-std=c99",
+		incname => "OpenSSL",
+		lparams => "-lssl -lcrypto"
+	}
 }
 
 var silent = false;

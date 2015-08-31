@@ -30,6 +30,10 @@
 #define PROF_SIZE		(1 << 20)
 #define CALL_MAX_ARGS	5
 #define NEKO_FIELDS_MASK 63
+#ifdef NEKO_GC_DEBUG
+#	define GC_DEBUG
+#endif
+
 
 typedef struct _custom_list {
 	vkind tag;

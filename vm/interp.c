@@ -572,6 +572,65 @@ EXTERN void neko_vm_dump_stack( neko_vm *vm ) {
 	fflush(stdout);
 }
 
+#ifdef NEKO_GC_DEBUG
+EXTERN char* neko_vm_get_stack( neko_vm *vm, const char *from_file ) {
+	if( !vm )
+		return (char *)from_file;
+
+	int len = 2048;
+  	char *ret = malloc( len );
+	char *cur = ret;
+	int_val *cspup = vm->csp;
+	int_val *csp = vm->spmin - 1;
+	int i = 0;
+	while( csp != cspup ) {
+		neko_module *m = (neko_module*)csp[4];
+		if( m ) {
+			snprintf(cur,len,"%s ",val_string(m->name));
+			int l = strlen(cur);
+			cur += l;
+			len -= l;
+			if( m->dbgidxs ) {
+				int ppc = (int)((((int_val**)csp)[1]-2) - m->code);
+				int idx = m->dbgidxs[ppc>>5].base + bitcount(m->dbgidxs[ppc>>5].bits >> (31 - (ppc & 31)));
+				value s = val_array_ptr(m->dbgtbl)[idx];
+				if( val_is_string(s) ){
+					snprintf(cur,len,"%s",val_string(s));
+					int l = strlen(cur);
+					cur += l;
+					len -= l;
+				}else if( val_is_array(s) && val_array_size(s) == 2 && val_is_string(val_array_ptr(s)[0]) && val_is_int(val_array_ptr(s)[1]) ) {
+					snprintf(cur,len,"file %s line %d",val_string(val_array_ptr(s)[0]),val_int(val_array_ptr(s)[1]));
+					int l = strlen(cur);
+					cur += l;
+					len -= l;
+				}else{
+					snprintf(cur,len,"???");
+					int l = strlen(cur);
+					cur += l;
+					len -= l;
+				}
+			}
+		} else {
+			snprintf(cur,len,"C function");
+			int l = strlen(cur);
+			cur += l;
+			len -= l;
+		}
+		csp += 4;
+		snprintf(cur,len,"\n");
+		int l = strlen(cur);
+		cur += l;
+		len -= l;
+		i++;
+		if( i > 28 )
+			break;
+	}
+	snprintf(cur,len,"in %s", from_file);
+	return ret;
+}
+#endif
+
 void neko_setup_trap( neko_vm *vm ) {
 	vm->sp -= 6;
 	if( vm->sp <= vm->csp && !neko_stack_expand(vm->sp,vm->csp,vm) )
