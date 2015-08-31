@@ -81,6 +81,35 @@ static value block_error() {
 	return alloc_null();
 }
 
+static value ssl_error( SSL *ssl, int ret ) {
+	int err = SSL_get_error(ssl, ret);
+	switch( err ){
+		case SSL_ERROR_WANT_READ:
+			val_throw(alloc_string("SSL_ERROR_WANT_READ"));
+		break;
+		case SSL_ERROR_WANT_WRITE:
+			val_throw(alloc_string("SSL_ERROR_WANT_WRITE"));
+		break;
+		case SSL_ERROR_WANT_CONNECT:
+			val_throw(alloc_string("SSL_ERROR_WANT_CONNECT"));
+		break;
+		case SSL_ERROR_WANT_ACCEPT:
+			val_throw(alloc_string("SSL_ERROR_WANT_ACCEPT"));
+		break;
+		case SSL_ERROR_WANT_X509_LOOKUP:
+			val_throw(alloc_string("SSL_ERROR_WANT_X509_LOOKUP"));
+		break;
+		case SSL_ERROR_SYSCALL:
+			val_throw(alloc_string("SSL_ERROR_SYSCALL"));
+		break;
+		case SSL_ERROR_SSL:
+			val_throw(alloc_string(ERR_reason_error_string(ERR_get_error())));
+		break;
+	}
+	neko_error();
+	return alloc_null();
+}
+
 static value hxssl_SSL_library_init() {
 	SSL_library_init();
 	//OpenSSL_add_all_algorithms(); // required ?
@@ -107,7 +136,7 @@ static value hxssl_SSL_close( value ssl ) {
 static value hxssl_SSL_connect( value ssl ) {
 	int r = SSL_connect( val_ssl(ssl) );
 	if( r < 0 )
-		neko_error();
+		ssl_error(val_ssl(ssl),r);
 	return alloc_int( r );
 }
 
@@ -303,11 +332,17 @@ static value hxssl_SSL_CTX_set_verify( value ctx ) {
 
 static value hxssl_SSL_CTX_use_certificate_file( value ctx, value certFile, value privateKeyFile ) {
 	SSL_CTX* _ctx = val_ctx(ctx);
-	SSL_CTX_use_certificate_chain_file( _ctx, val_string(certFile) );
-	SSL_CTX_use_PrivateKey_file( _ctx, val_string(privateKeyFile), SSL_FILETYPE_PEM );
-	if( !SSL_CTX_check_private_key(_ctx) ) {
- 		neko_error();
+	if( SSL_CTX_use_certificate_chain_file( _ctx, val_string(certFile) ) <= 0 ){
+		val_throw(alloc_string("SSL_CTX_use_certificate_chain_file"));
 	}
+	
+	if( SSL_CTX_use_PrivateKey_file( _ctx, val_string(privateKeyFile), SSL_FILETYPE_PEM ) <= 0 ){
+		val_throw(alloc_string("SSL_CTX_use_PrivateKey_file"));
+	}
+
+	if( !SSL_CTX_check_private_key(_ctx) ) 
+ 		neko_error();
+
 	return alloc_null();
 }
 
