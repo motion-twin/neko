@@ -4,6 +4,9 @@ os:
   - linux
   - osx
 
+addons:
+  mariadb: '10.1'
+
 install:
   # For our forks that do not have mult-os enabled...
   - if [ -z "${TRAVIS_OS_NAME}" ]; then
@@ -14,19 +17,21 @@ install:
         sudo apt-get update -qq;
         sudo apt-get install zlib1g-dev libgc-dev -qq;
     elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
-    	brew tap homebrew/dupes;
+        brew tap homebrew/dupes;
         brew update;
-        brew install bdw-gc pcre openssl zlib;
+        brew install bdw-gc pcre openssl zlib mariadb;
         brew link zlib --force;
     fi
 
 script:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
         make;
+        make test;
         sudo make install;
     elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
         make os=osx LIB_PREFIX=/usr/local;
+        make test;
         sudo make os=osx install;
     fi
   - neko -version
-  - make test
+  - neko src/tools/test.n
