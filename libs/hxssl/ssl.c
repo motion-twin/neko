@@ -23,7 +23,7 @@
 
 #include <openssl/x509v3.h>
 
-#ifdef _MSC_VER 
+#ifdef _MSC_VER
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 #endif
@@ -157,15 +157,9 @@ static value hxssl_SSL_set_bio( value ssl, value rbio, value wbio ) {
 static value hxssl_SSLv23_client_method() {
 	return alloc_abstract( k_ssl_method_pointer, (SSL_METHOD*)SSLv23_client_method() );
 }
-static value hxssl_TLSv1_client_method() {
-	return alloc_abstract( k_ssl_method_pointer, (SSL_METHOD*)TLSv1_client_method() );
-}
 
 static value hxssl_SSLv23_server_method() {
     return alloc_abstract( k_ssl_method_pointer, (SSL_METHOD*)SSLv23_server_method() );
-}
-static value hxssl_TLSv1_server_method() {
-	return alloc_abstract( k_ssl_method_pointer, (SSL_METHOD*)TLSv1_server_method() );
 }
 
 static value hxssl_SSL_CTX_new( value m ) {
@@ -175,6 +169,10 @@ static value hxssl_SSL_CTX_new( value m ) {
 static value hxssl_SSL_CTX_close( value ctx ) {
 	SSL_CTX_free( val_ctx(ctx) );
 	return alloc_null();
+}
+
+static value hxssl_SSL_CTX_set_cipher_list( value ctx, value str ){
+	return alloc_int(SSL_CTX_set_cipher_list( val_ctx(ctx), val_string(str) ));
 }
 
 static value hxssl_SSL_CTX_load_verify_locations( value ctx, value certFile, value certFolder ) {
@@ -208,14 +206,14 @@ static int verify_callback(int preverify_ok, X509_STORE_CTX *ctx) {
 
 // HostnameValidation based on https://github.com/iSECPartners/ssl-conservatory
 // Wildcard cmp based on libcurl hostcheck
-static HostnameValidationResult hxssl_match_hostname( const ASN1_STRING *asn1, const char *hostname ){	
+static HostnameValidationResult hxssl_match_hostname( const ASN1_STRING *asn1, const char *hostname ){
 	char *pattern, *wildcard, *pattern_end, *hostname_end;
 	int prefixlen, suffixlen;
 	if( asn1 == NULL )
 		return Error;
 
 	pattern = (char *)ASN1_STRING_data((ASN1_STRING *)asn1);
-	
+
 	if( ASN1_STRING_length((ASN1_STRING *)asn1) != strlen(pattern) ){
 		return MalformedCertificate;
 	}else{
@@ -225,7 +223,7 @@ static HostnameValidationResult hxssl_match_hostname( const ASN1_STRING *asn1, c
 				return MatchFound;
 			return MatchNotFound;
 		}
-		pattern_end = strchr(pattern, '.');	
+		pattern_end = strchr(pattern, '.');
 		if( pattern_end == NULL || strchr(pattern_end+1,'.') == NULL || wildcard > pattern_end || strncasecmp(pattern,"xn--",4)==0 )
 			return MatchNotFound;
 		hostname_end = strchr((char *)hostname, '.');
@@ -273,7 +271,7 @@ static HostnameValidationResult hxssl_matches_common_name(const X509 *server_cer
 	int cn_loc = -1;
 	X509_NAME_ENTRY *cn_entry = NULL;
 
-	
+
 	cn_loc = X509_NAME_get_index_by_NID(X509_get_subject_name((X509 *)server_cert), NID_commonName, -1);
 	if( cn_loc < 0 )
 		return Error;
@@ -295,9 +293,9 @@ static value hxssl_validate_hostname( value ssl, value hostname ){
 		neko_error();
 
 	result = hxssl_matches_subject_alternative_name(server_cert, name);
-	if (result == NoSANPresent) 
+	if (result == NoSANPresent)
 		result = hxssl_matches_common_name(server_cert, name);
-	
+
 	if( result == MatchFound )
 		return alloc_null();
 
@@ -335,12 +333,12 @@ static value hxssl_SSL_CTX_use_certificate_file( value ctx, value certFile, valu
 	if( SSL_CTX_use_certificate_chain_file( _ctx, val_string(certFile) ) <= 0 ){
 		val_throw(alloc_string("SSL_CTX_use_certificate_chain_file"));
 	}
-	
+
 	if( SSL_CTX_use_PrivateKey_file( _ctx, val_string(privateKeyFile), SSL_FILETYPE_PEM ) <= 0 ){
 		val_throw(alloc_string("SSL_CTX_use_PrivateKey_file"));
 	}
 
-	if( !SSL_CTX_check_private_key(_ctx) ) 
+	if( !SSL_CTX_check_private_key(_ctx) )
  		neko_error();
 
 	return alloc_null();
@@ -367,13 +365,13 @@ static int hxssl_ssl_servername_cb(SSL *ssl, int *ad, void *arg){
 #endif
 
 	const char *servername = SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name);
-	
+
 	if( servername && fn != NULL ){
 	 	value ret = val_call1(fn, alloc_string(servername)) ;
 		if( !val_is_null(ret) )
 			SSL_set_SSL_CTX( ssl, val_ctx(ret) );
 	}
-	
+
 	return SSL_TLSEXT_ERR_OK;
 }
 
@@ -491,7 +489,7 @@ static value hxssl_SSL_recv_char(value ssl) {
 
 
 static  value hxssl___SSL_read( value ssl ) {
-	
+
 	/*
 	buffer b;
 	int bufsize = 256; //TODO buffer size
@@ -509,7 +507,7 @@ static  value hxssl___SSL_read( value ssl ) {
 	}
 	return buffer_to_string(b);
 	*/
-	
+
 	int bufsize = 256;
 	buffer b;
 	char buf[256];
@@ -594,12 +592,11 @@ DEFINE_PRIM( hxssl_SSL_free, 1 );
 DEFINE_PRIM( hxssl_SSL_set_bio, 3 );
 
 DEFINE_PRIM( hxssl_SSLv23_client_method, 0 );
-DEFINE_PRIM( hxssl_TLSv1_client_method, 0 );
 DEFINE_PRIM( hxssl_SSLv23_server_method, 0 );
-DEFINE_PRIM( hxssl_TLSv1_server_method, 0 );
 
 DEFINE_PRIM( hxssl_SSL_CTX_new, 1 );
 DEFINE_PRIM( hxssl_SSL_CTX_close, 1 );
+DEFINE_PRIM( hxssl_SSL_CTX_set_cipher_list, 2 );
 DEFINE_PRIM( hxssl_SSL_CTX_load_verify_locations, 3 );
 DEFINE_PRIM( hxssl_SSL_CTX_set_verify, 1 );
 DEFINE_PRIM( hxssl_SSL_CTX_use_certificate_file, 3 );
