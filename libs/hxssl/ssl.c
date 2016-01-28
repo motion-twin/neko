@@ -179,6 +179,7 @@ static value hxssl_SSL_CTX_set_ecdh( value ctx ){
     SSL_CTX_set_tmp_ecdh(_ctx, eckey);
 	SSL_CTX_set_options(_ctx, SSL_OP_SINGLE_ECDH_USE);
     EC_KEY_free(eckey);
+	return alloc_null();
 }
 
 static value hxssl_SSL_CTX_set_cipher_list( value ctx, value str, value preferServer ){
