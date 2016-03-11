@@ -20,6 +20,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mod_tora2", "mod_tora\mod_t
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ssl", "ssl\ssl.vcxproj", "{F7CFC026-9693-45FC-BC30-95DB2385B130}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hxssl", "hxssl\hxssl.vcxproj", "{BFD5821B-8268-B6D8-1EE2-DAEEE8B574C9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -87,6 +89,12 @@ Global
 		{F7CFC026-9693-45FC-BC30-95DB2385B130}.Release|Win32.Build.0 = Release|Win32
 		{F7CFC026-9693-45FC-BC30-95DB2385B130}.ReleaseCrt60|Win32.ActiveCfg = ReleaseCrt60|Win32
 		{F7CFC026-9693-45FC-BC30-95DB2385B130}.ReleaseCrt60|Win32.Build.0 = ReleaseCrt60|Win32
+		{BFD5821B-8268-B6D8-1EE2-DAEEE8B574C9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BFD5821B-8268-B6D8-1EE2-DAEEE8B574C9}.Debug|Win32.Build.0 = Debug|Win32
+		{BFD5821B-8268-B6D8-1EE2-DAEEE8B574C9}.Release|Win32.ActiveCfg = Release|Win32
+		{BFD5821B-8268-B6D8-1EE2-DAEEE8B574C9}.Release|Win32.Build.0 = Release|Win32
+		{BFD5821B-8268-B6D8-1EE2-DAEEE8B574C9}.ReleaseCrt60|Win32.ActiveCfg = ReleaseCrt60|Win32
+		{BFD5821B-8268-B6D8-1EE2-DAEEE8B574C9}.ReleaseCrt60|Win32.Build.0 = ReleaseCrt60|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
