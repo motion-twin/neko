@@ -989,22 +989,26 @@ static value socket_set_keepalive( value o, value b, value time, value interval 
 			neko_error();
 
 		if( !val_is_null(time) && !val_is_null(interval) ) {
-#if defined(NEKO_LINUX)
-			val = val_int(time);
-			if( setsockopt(s, IPPROTO_TCP, TCP_KEEPIDLE, (void *)&val, sizeof(val)) != 0 )
-				neko_error();
-			val = val_int(interval);
-			if( setsockopt(s, IPPROTO_TCP, TCP_KEEPINTVL, (void *)&val, sizeof(val)) != 0 )
-				neko_error();
-#elif defined(NEKO_MAC)
-			val = val_int(time);
-			if( setsockopt(s, IPPROTO_TCP, TCP_KEEPALIVE, (void *)&val, sizeof(val)) != 0 )
-				neko_error();
-#elif defined(NEKO_WINDOWS)
+#			if defined(NEKO_WINDOWS)
 			u_long params[3] = { 1, (unsigned long)val_int(time)*1000, (unsigned long)val_int(interval)*1000 };
 			if( WSAIoctl(s, SIO_KEEPALIVE_VALS, &params, sizeof(params), NULL, 0, &val, NULL, NULL) != 0 )
 				neko_error();
-#endif
+#			else
+#			if defined(TCP_KEEPIDLE)
+			val = val_int(time);
+			if( setsockopt(s, IPPROTO_TCP, TCP_KEEPIDLE, (void *)&val, sizeof(val)) != 0 )
+				neko_error();
+#			elif defined(TCP_KEEPALIVE)
+			val = val_int(time);
+			if( setsockopt(s, IPPROTO_TCP, TCP_KEEPALIVE, (void *)&val, sizeof(val)) != 0 )
+				neko_error();
+#			endif
+#			if defined(TCP_KEEPINTVL)
+			val = val_int(interval);
+			if( setsockopt(s, IPPROTO_TCP, TCP_KEEPINTVL, (void *)&val, sizeof(val)) != 0 )
+				neko_error();
+#			endif
+#			endif
 		}
 	}
 	return val_null;
