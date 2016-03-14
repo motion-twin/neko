@@ -1001,7 +1001,7 @@ static value socket_set_keepalive( value o, value b, value time, value interval 
 			if( setsockopt(s, IPPROTO_TCP, TCP_KEEPALIVE, (void *)&val, sizeof(val)) != 0 )
 				neko_error();
 #elif defined(NEKO_WINDOWS)
-			unsigned long params[3] = { 1, val_int(time), val_int(interval) };
+			u_long params[3] = { 1, (unsigned long)val_int(time)*1000, (unsigned long)val_int(interval)*1000 };
 			if( WSAIoctl(s, SIO_KEEPALIVE_VALS, &params, sizeof(params), NULL, 0, &val, NULL, NULL) != 0 )
 				neko_error();
 #endif
