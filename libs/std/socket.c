@@ -1207,7 +1207,6 @@ DEFINE_PRIM(socket_set_timeout,2);
 DEFINE_PRIM(socket_shutdown,3);
 DEFINE_PRIM(socket_set_blocking,2);
 DEFINE_PRIM(socket_set_fast_send,2);
-DEFINE_PRIM(socket_set_keepalive,5);
 
 DEFINE_PRIM(socket_send_to,5);
 DEFINE_PRIM(socket_recv_from,5);
