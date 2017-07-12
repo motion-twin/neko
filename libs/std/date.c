@@ -223,6 +223,44 @@ static value date_get_hour( value o ) {
 }
 
 /**
+	date_get_day : #int32 -> { y => int, m => int, d => int }
+	<doc>Return the GMT year month and day of a date</doc>
+**/
+static value date_get_gmt_day( value o ) {
+	value r;
+	struct tm t;
+	time_t d;
+	val_check(o,any_int);
+	d = val_any_int(o);
+	if( gmtime_r(&d,&t) == NULL )
+		neko_error();
+	r = alloc_object(NULL);
+	alloc_field(r,id_y,alloc_int(t.tm_year + 1900));
+	alloc_field(r,id_m,alloc_int(t.tm_mon + 1));
+	alloc_field(r,id_d,alloc_int(t.tm_mday));
+	return r;
+}
+
+/**
+	date_get_hour : #int32 -> { h => int, m => int, s => int }
+	<doc>Return the GMT hour minutes and seconds of a date</doc>
+**/
+static value date_get_gmt_hour( value o ) {
+	value r;
+	struct tm t;
+	time_t d;
+	val_check(o,any_int);
+	d = val_any_int(o);
+	if( gmtime_r(&d,&t) == NULL )
+		neko_error();
+	r = alloc_object(NULL);
+	alloc_field(r,id_h,alloc_int(t.tm_hour));
+	alloc_field(r,id_m,alloc_int(t.tm_min));
+	alloc_field(r,id_s,alloc_int(t.tm_sec));
+	return r;
+}
+
+/**
 	date_get_tz : void -> int
 	<doc>Return the local Timezone (in seconds)</doc>
 **/
@@ -249,6 +287,8 @@ DEFINE_PRIM(date_set_hour,4);
 DEFINE_PRIM(date_set_day,4);
 DEFINE_PRIM(date_get_hour,1);
 DEFINE_PRIM(date_get_day,1);
+DEFINE_PRIM(date_get_gmt_hour,1);
+DEFINE_PRIM(date_get_gmt_day,1);
 DEFINE_PRIM(date_get_tz,0);
 
 /* ************************************************************************ */
